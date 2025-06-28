@@ -16,11 +16,20 @@ $get_video = PT_GetVideoByID($id, 1, 1);
 /*if ($get_video->is_short == 1) {
     header("Location: " . $get_video->url);
     exit();
-}*/
+}
 if (isset($pt->get_video['is_short']) && $pt->get_video['is_short'] == 1) {
     header("Location: " . PT_Link("shorts/" . $pt->get_video['video_id']));
     exit();
+}*/
+
+if (isset($pt->get_video) && is_object($pt->get_video) && $pt->get_video->is_short == 1) {
+    header("Location: " . PT_Link("shorts/" . $pt->get_video->video_id));
+    exit();
 }
+
+// sisa konten...
+
+
 
 
 if (empty($get_video)) {
