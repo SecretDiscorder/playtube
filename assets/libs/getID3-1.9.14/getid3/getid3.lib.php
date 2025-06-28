@@ -1800,9 +1800,17 @@ class getid3_lib
 	 *
 	 * @return string
 	 */
-	public static function mb_basename($path, $suffix = null) {
-		$splited = preg_split('#/#', rtrim($path, '/ '));
-		return substr(basename('X'.$splited[count($splited) - 1], $suffix), 1);
-	}
+public static function mb_basename($path, $suffix = null) {
+    $splited = preg_split('#/#', rtrim($path, '/ '));
+
+    $base = 'X' . $splited[count($splited) - 1];
+
+    // Pastikan $suffix adalah string
+    if (!is_string($suffix)) {
+        $suffix = '';
+    }
+
+    return substr(basename($base, $suffix), 1);
+}
 
 }
