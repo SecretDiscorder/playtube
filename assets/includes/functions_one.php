@@ -1136,7 +1136,7 @@ function PT_GetAd($type, $admin = true) {
 
 function PT_GetThemes() {
     global $pt;
-    $themes = glob('themes/*', GLOB_ONLYDIR);
+    $themes = glob('themes/.', GLOB_ONLYDIR);
     return $themes;
 }
 
@@ -3667,7 +3667,7 @@ function getStatus($config = array()) {
     }
 
 
-    $dirs = array_filter(glob('upload/*'), 'is_dir');
+    $dirs = array_filter(glob('upload/.'), 'is_dir');
     foreach ($dirs as $key => $value) {
         if (!is_writable($value)) {
             $errors[] = ["type" => "error", "message" => "The folder: <strong>{$value}</strong> is not writable, folder permission should be set to <strong>777</strong>."];
@@ -4026,7 +4026,7 @@ function urlGetFacebookContents($url)
             'sec-ch-ua-mobile: ?0',
             'upgrade-insecure-requests: 1',
             'user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36',
-            'accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+            'accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,**;q=0.8,application/signed-exchange;v=b3;q=0.9',
             'sec-fetch-site: none',
             'sec-fetch-mode: navigate',
             'sec-fetch-user: ?1',
@@ -4056,7 +4056,7 @@ function getFacebookLongUrl($url)
         'sec-ch-ua-mobile: ?0',
         'upgrade-insecure-requests: 1',
         'user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36',
-        'accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+        'accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,**;q=0.8,application/signed-exchange;v=b3;q=0.9',
         'sec-fetch-site: none',
         'sec-fetch-mode: navigate',
         'sec-fetch-user: ?1',
@@ -4706,7 +4706,34 @@ function cleanConfigData()
         }
     }
 }
+function decryptConfigData()
+{
+    global $pt, $siteEncryptKey;
 
+    // Validasi bahwa $siteEncryptKey adalah string yang tidak kosong
+    if (!is_string($siteEncryptKey) || trim($siteEncryptKey) === '') {
+        error_log('Decrypt error: $siteEncryptKey is not a valid string.');
+        return;
+    }
+
+    foreach ($pt->encryptedKeys as $key => $value) {
+        if (
+            in_array($value, array_keys((array) $pt->config)) &&
+            strpos($pt->config->{$value}, '$Ap1_') !== false
+        ) {
+            $tx = str_replace('$Ap1_', '', $pt->config->{$value});
+
+            $decrypted = openssl_decrypt($tx, "AES-128-ECB", $siteEncryptKey);
+
+            // Cek jika dekripsi berhasil, baru masukkan nilainya
+            if ($decrypted !== false) {
+                $pt->config->{$value} = $decrypted;
+            } else {
+                error_log("Gagal mendekripsi konfigurasi untuk kunci: {$value}");
+            }
+        }
+    }
+}/*
 function decryptConfigData()
 {
     global $pt,$siteEncryptKey;
@@ -4717,8 +4744,7 @@ function decryptConfigData()
             $pt->config->{$value} = openssl_decrypt($tx, "AES-128-ECB", $siteEncryptKey);
         }
     }
-}
-
+}*/
 function convertVideoUsingFFMPEG($data)
 {
     global $pt, $sqlConnect,$db,$lang_array;
