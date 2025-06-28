@@ -13,10 +13,15 @@ if (strpos($id, '_') !== false) {
 
 $_GET['id'] = strip_tags($_GET['id']);
 $get_video = PT_GetVideoByID($id, 1, 1);
-if ($get_video->is_short == 1) {
+/*if ($get_video->is_short == 1) {
     header("Location: " . $get_video->url);
     exit();
+}*/
+if (isset($pt->get_video['is_short']) && $pt->get_video['is_short'] == 1) {
+    header("Location: " . PT_Link("shorts/" . $pt->get_video['video_id']));
+    exit();
 }
+
 
 if (empty($get_video)) {
     header("Location: " . PT_Link('404'));
