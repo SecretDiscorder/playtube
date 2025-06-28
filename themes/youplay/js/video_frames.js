@@ -53,7 +53,45 @@ var VideoToFrames = (function () {
             var video = document.createElement('video');
             video.preload = 'auto';
             var that = _this;
-            video.addEventListener('loadeddata', function () {
+//var video = document.querySelector("video"); // atau sesuai cara awalmu ambil elemen
+
+if (video) {
+    video.addEventListener('loadeddata', function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var totalFrames, time, _a, _b, _c;
+            return __generator(this, function (_d) {
+                switch (_d.label) {
+                    case 0:
+                        canvas.width = video.videoWidth;
+                        canvas.height = video.videoHeight;
+                        duration = video.duration;
+                        totalFrames = amount;
+                        if (type === VideoToFramesMethod.fps) {
+                            totalFrames = duration * amount;
+                        }
+                        time = 0;
+                        _d.label = 1;
+                    case 1:
+                        if (!(time < duration))
+                            return [3 /*break*/, 4];
+                        _b = (_a = frames).push;
+                        return [4 /*yield*/, that.getVideoFrame(video, context, time)];
+                    case 2:
+                        _b.apply(_a, [_d.sent()]);
+                        _d.label = 3;
+                    case 3:
+                        time += duration / totalFrames;
+                        return [3 /*break*/, 1];
+                    case 4:
+                        resolve(frames);
+                        return [2 /*return*/];
+                }
+            });
+        });
+    });
+}
+
+            /*video.addEventListener('loadeddata', function () {
                 return __awaiter(this, void 0, void 0, function () {
                     var totalFrames, time, _a, _b, _c;
                     return __generator(this, function (_d) {
@@ -85,7 +123,7 @@ var VideoToFrames = (function () {
                         }
                     });
                 });
-            });
+            });*/
             video.src = videoUrl;
             video.load();
         });
